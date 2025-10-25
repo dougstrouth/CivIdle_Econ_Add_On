@@ -6,6 +6,7 @@ import {
    DEFAULT_GREAT_PEOPLE_CHOICE_COUNT,
    rollPermanentGreatPeople,
 } from "../../../shared/logic/RebirthLogic";
+import { Tick } from "../../../shared/logic/TickLogic";
 import {
    ChatChannels,
    UserAttributes,
@@ -21,6 +22,7 @@ import {
    formatNumber,
    hasFlag,
    numberToRoman,
+   safeAdd,
    safeParseInt,
    sizeOf,
    uuid4,
@@ -53,6 +55,25 @@ function requireDevelopment(): void {
 export async function handleChatCommand(command: string): Promise<void> {
    const parts = command.split(" ");
    switch (parts[0]) {
+      case "addres": {
+         requireDevelopment();
+         if (!parts[1] || !parts[2]) {
+            throw new Error("Invalid command format: /addres [resource] [amount]");
+         }
+         const resource = parts[1] as Resource;
+         const amount = safeParseInt(parts[2], 0);
+         if (!Config.Resource[resource]) {
+            throw new Error(`Invalid resource: ${resource}`);
+         }
+         const hq = Tick.current.specialBuildings.get("Headquarter");
+         if (hq) {
+            safeAdd(hq.building.resources, resource, amount);
+            addSystemMessage(`Added ${formatNumber(amount)} ${resource}`);
+         } else {
+            throw new Error("Headquarter not found");
+         }
+         break;
+      }
       case "loadsave": {
          requireDevelopment();
          const [handle] = await window.showOpenFilePicker();

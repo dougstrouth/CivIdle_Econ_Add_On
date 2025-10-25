@@ -553,6 +553,7 @@ export function ResourcesTab({ gameState }: IBuildingComponentProps): React.Reac
             header={[
                { name: "", sortable: true },
                { name: t(L.ResourceAmount), right: true, sortable: true },
+               { name: t(L.TotalValue), right: true, sortable: true },
                { name: t(L.StatisticsResourcesDeficit), right: true, sortable: true },
                { name: t(L.StatisticsResourcesRunOut), right: true, sortable: true },
             ]}
@@ -576,11 +577,15 @@ export function ResourcesTab({ gameState }: IBuildingComponentProps): React.Reac
                      );
                   case 2:
                      return (
+                        (Tick.current.resourceValues.get(a) ?? 0) - (Tick.current.resourceValues.get(b) ?? 0)
+                     );
+                  case 3:
+                     return (
                         (outputs.get(a) ?? 0) -
                         (inputs.get(a) ?? 0) -
                         ((outputs.get(b) ?? 0) - (inputs.get(b) ?? 0))
                      );
-                  case 3: {
+                  case 4: {
                      const deficitA = (outputs.get(a) ?? 0) - (inputs.get(a) ?? 0);
                      const deficitB = (outputs.get(b) ?? 0) - (inputs.get(b) ?? 0);
                      const timeLeftA =
@@ -623,6 +628,9 @@ export function ResourcesTab({ gameState }: IBuildingComponentProps): React.Reac
                      </td>
                      <td className="right">
                         <FormatNumber value={amount} />
+                     </td>
+                     <td className="right">
+                        <FormatNumber value={Tick.current.resourceValues.get(res) ?? 0} />
                      </td>
                      <td>
                         <div className={classNames({ "text-right": true, "text-red": deficit < 0 })}>
